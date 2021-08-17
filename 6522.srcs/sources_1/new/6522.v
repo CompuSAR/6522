@@ -39,27 +39,59 @@ end
 
 always@(posedge phi2)
 begin
-    if( cs & nReset )
+    if( cs && nReset && rWb )
     begin
         case( rs )
         4'd0: begin
-            // Peripheral B data 
+            readPb();
         end
         4'd1: begin
-            // Peripheral A data
+            readPa();
         end
         4'd2: begin
-            // Peripheral B data direction
+            readPbDir();
         end
         4'd3: begin
-            // Peripheral A data direction
+            readPaDir();
         end
         default: begin
             // All other registers are not yet implemented
         end
         endcase
-    end else
-        dataReg = 7'bZ;
+    end else begin
+        // If we're not selected or we're in write mode, deassert the data line
+        dataReg = {8{1'bZ}};
+    end
+end
+
+always@(negedge phi2)
+begin
+    if( cs && nReset )
+    begin
+        if( !rWb ) begin
+            // Write mode
+            case( rs )
+            4'd0: begin
+                writePb();
+            end
+            4'd1: begin
+                writePa();
+            end
+            4'd2: begin
+                writePbDir();
+            end
+            4'd3: begin
+                writePaDir();
+            end
+            default: begin
+                // All other registers are not yet implemented
+            end
+            endcase
+        end
+    end else begin
+        // If we're not selected deassert the data line
+        dataReg = {8{1'bZ}};
+    end
 end
 
 always@(negedge nReset)
@@ -67,9 +99,44 @@ begin
     reset();
 end
 
+task readPb();
+begin 
+    // Read. Give true input where applicable, and *desired* output elsewhere. See section 2.1 of the datasheet
+    dataReg = (pb & ~peripheralBDirection) | (peripheralB & peripheralBDirection);
+end
+endtask
+
+task writePb();
+    peripheralB = data;
+endtask
+
+task readPa();
+    dataReg = pa;
+endtask
+
+task writePa();
+    peripheralA = data;
+endtask
+
+task readPbDir();
+    dataReg = peripheralBDirection;
+endtask
+
+task writePbDir();
+    peripheralBDirection = data;
+endtask
+
+task readPaDir();
+    dataReg = peripheralADirection;
+endtask
+
+task writePaDir();
+    peripheralADirection = data;
+endtask
+
 task reset();
 begin
-    dataReg = 7'bZ; // High impedance on start
+    dataReg = 8'bZ; // High impedance on start
     irqReg = 1;     // Don't request interrupt
     
     peripheralA = 0;
