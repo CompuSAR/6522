@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="wd6522_test_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="wd6522_test" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="631.001 ns"></ZoomEndTime>
+      <Cursor1Time time="0.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="276"></NameColumnWidth>
+      <ValueColumnWidth column_width="92"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="17" />
+   <wvobject type="logic" fp_name="/wd6522_test/via/cs">
+      <obj_property name="ElementShortName">cs</obj_property>
+      <obj_property name="ObjectShortName">cs</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/wd6522_test/via/phi2">
+      <obj_property name="ElementShortName">phi2</obj_property>
+      <obj_property name="ObjectShortName">phi2</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/wd6522_test/via/nReset">
+      <obj_property name="ElementShortName">nReset</obj_property>
+      <obj_property name="ObjectShortName">nReset</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/rs">
+      <obj_property name="ElementShortName">rs[3:0]</obj_property>
+      <obj_property name="ObjectShortName">rs[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/wd6522_test/via/rWb">
+      <obj_property name="ElementShortName">rWb</obj_property>
+      <obj_property name="ObjectShortName">rWb</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/dataIn">
+      <obj_property name="ElementShortName">dataIn[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dataIn[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/dataOut">
+      <obj_property name="ElementShortName">dataOut[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dataOut[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/paIn">
+      <obj_property name="ElementShortName">paIn[7:0]</obj_property>
+      <obj_property name="ObjectShortName">paIn[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/paOut">
+      <obj_property name="ElementShortName">paOut[7:0]</obj_property>
+      <obj_property name="ObjectShortName">paOut[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/pbIn">
+      <obj_property name="ElementShortName">pbIn[7:0]</obj_property>
+      <obj_property name="ObjectShortName">pbIn[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/pbOut">
+      <obj_property name="ElementShortName">pbOut[7:0]</obj_property>
+      <obj_property name="ObjectShortName">pbOut[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/wd6522_test/via/nIrq">
+      <obj_property name="ElementShortName">nIrq</obj_property>
+      <obj_property name="ObjectShortName">nIrq</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/wd6522_test/via/irqReg">
+      <obj_property name="ElementShortName">irqReg</obj_property>
+      <obj_property name="ObjectShortName">irqReg</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/peripheralA">
+      <obj_property name="ElementShortName">peripheralA[7:0]</obj_property>
+      <obj_property name="ObjectShortName">peripheralA[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/peripheralADirection">
+      <obj_property name="ElementShortName">peripheralADirection[7:0]</obj_property>
+      <obj_property name="ObjectShortName">peripheralADirection[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/peripheralB">
+      <obj_property name="ElementShortName">peripheralB[7:0]</obj_property>
+      <obj_property name="ObjectShortName">peripheralB[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/wd6522_test/via/peripheralBDirection">
+      <obj_property name="ElementShortName">peripheralBDirection[7:0]</obj_property>
+      <obj_property name="ObjectShortName">peripheralBDirection[7:0]</obj_property>
+   </wvobject>
+</wave_config>

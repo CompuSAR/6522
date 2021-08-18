@@ -7,31 +7,38 @@ module wd6522(
     input [3:0]rs,      // Register select
     input rWb,          // read (high) write (low)
 
-    inout[7:0]data,
+    input [7:0]dataIn,
+    output [7:0]dataOut,
 
-    inout [7:0]pa,      // Peripheral data port A
-    inout [7:0]pb,      // Peripheral data port B
+    input  [7:0]paIn,   // Peripheral data port A
+    output [7:0]paOut,  // Peripheral data port A
+    input  [7:0]pbIn,   // Peripheral data port B
+    output [7:0]pbOut,  // Peripheral data port B
 
     output nIrq);       // Interrupt request
 
 reg [7:0]dataReg;
-assign data = dataReg;
+assign dataOut = dataReg;
 reg irqReg;
 assign nIrq = irqReg;
 
 reg [7:0]peripheralA;
 reg [7:0]peripheralADirection;
 
-for( genvar i=0; i<8; i = i+1 ) begin
-    assign pa[i] = peripheralADirection[i] ? peripheralA[i] : 1'bZ;
-end
+generate
+    for( genvar i=0; i<8; i = i+1 ) begin
+        assign paOut[i] = peripheralADirection[i] ? peripheralA[i] : 1'bZ;
+    end
+endgenerate
 
 reg [7:0]peripheralB;
 reg [7:0]peripheralBDirection;
 
-for( genvar i=0; i<8; i = i+1 ) begin
-    assign pb[i] = peripheralBDirection[i] ? peripheralB[i] : 1'bZ;
-end
+generate
+    for( genvar i=0; i<8; i = i+1 ) begin
+        assign pbOut[i] = peripheralBDirection[i] ? peripheralB[i] : 1'bZ;
+    end
+endgenerate
 
 initial begin
     reset();
@@ -59,8 +66,7 @@ begin
         end
         endcase
     end else begin
-        // If we're not selected or we're in write mode, deassert the data line
-        dataReg = {8{1'bZ}};
+        dataReg = 7'bZ;
     end
 end
 
@@ -89,8 +95,7 @@ begin
             endcase
         end
     end else begin
-        // If we're not selected deassert the data line
-        dataReg = {8{1'bZ}};
+        dataReg = 7'bZ;
     end
 end
 
@@ -99,23 +104,28 @@ begin
     reset();
 end
 
+always@(negedge cs)
+begin
+    dataReg = 7'bZ;
+end
+
 task readPb();
 begin 
     // Read. Give true input where applicable, and *desired* output elsewhere. See section 2.1 of the datasheet
-    dataReg = (pb & ~peripheralBDirection) | (peripheralB & peripheralBDirection);
+    dataReg = (pbIn & ~peripheralBDirection) | (peripheralB & peripheralBDirection);
 end
 endtask
 
 task writePb();
-    peripheralB = data;
+    peripheralB = dataIn;
 endtask
 
 task readPa();
-    dataReg = pa;
+    dataReg = paIn;
 endtask
 
 task writePa();
-    peripheralA = data;
+    peripheralA = dataIn;
 endtask
 
 task readPbDir();
@@ -123,7 +133,7 @@ task readPbDir();
 endtask
 
 task writePbDir();
-    peripheralBDirection = data;
+    peripheralBDirection = dataIn;
 endtask
 
 task readPaDir();
@@ -131,7 +141,7 @@ task readPaDir();
 endtask
 
 task writePaDir();
-    peripheralADirection = data;
+    peripheralADirection = dataIn;
 endtask
 
 task reset();
