@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module wd6522_test();
+module via6522_test(inout [7:0]dataExt);
     
 reg cs;
 reg clock;
@@ -28,22 +28,18 @@ reg nReset;
 
 reg [3:0]registerSelect;
 
-/*
-reg [7:0]data;
-reg [7:0]pa;
-reg [7:0]pb;
-*/
-
 reg rw;
 wire [7:0]data;
-wire [7:0]pa;
 wire [7:0]pb;
 
 reg [7:0]dataInput;
 reg [7:0]paInput;
 reg [7:0]pbInput;
 
-wd6522 via(
+assign dataExt = data;
+assign dataExt = dataInput;
+
+via6522 via(
     .cs( cs ),
     .phi2( clock ),
     .nReset( nReset ),
@@ -51,9 +47,9 @@ wd6522 via(
     .rWb( rw ),
     
     .dataOut( data ),
-    .dataIn( dataInput ),
+    .dataIn( dataExt ),
     .paOut( pa ),
-    .paIn( paInput ),
+    .paIn( pa ),
     .pbOut( pb ),
     .pbIn( pbInput )
 );
@@ -71,9 +67,10 @@ initial begin
     nReset = 1;
     registerSelect = 0;
     rw = 1;
+    dataInput = {8{1'bz}};
     
-    pbInput = 7'b11010110;
-    paInput = 7'b00001000;
+    pbInput = 8'b11010110;
+    paInput = 8'b00001000;
     
     #100 cs=1;
     #200 cs=0;

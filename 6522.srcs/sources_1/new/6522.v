@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module wd6522(
+module via6522(
     input cs,           // Chip select. The real VIA has CS1 and nCS2. You can get the same functionality by defining this cs to be (cs1 & !cs2)
     input phi2,         // Phase 2 Internal Clock
     input nReset,       // Reset (active low)
@@ -8,151 +8,121 @@ module wd6522(
     input rWb,          // read (high) write (low)
 
     input [7:0]dataIn,
-    output [7:0]dataOut,
+    output reg [7:0]dataOut,
 
-    input  [7:0]paIn,   // Peripheral data port A
-    output [7:0]paOut,  // Peripheral data port A
+    input  [7:0]paIn,   // Peripheral data port A input
+    output reg [7:0]paOut,  // Peripheral data port A
+    output reg [7:0]paMask, // Peripheral data port A mask: 0 - input, 1 - output
     input  [7:0]pbIn,   // Peripheral data port B
-    output [7:0]pbOut,  // Peripheral data port B
+    output reg [7:0]pbOut,  // Peripheral data port B
+    output reg [7:0]pbMask,
 
-    output nIrq);       // Interrupt request
-
-reg [7:0]dataReg;
-assign dataOut = dataReg;
-reg irqReg;
-assign nIrq = irqReg;
-
-reg [7:0]peripheralA;
-reg [7:0]peripheralADirection;
-
-generate
-    for( genvar i=0; i<8; i = i+1 ) begin
-        assign paOut[i] = peripheralADirection[i] ? peripheralA[i] : 1'bZ;
-    end
-endgenerate
-
-reg [7:0]peripheralB;
-reg [7:0]peripheralBDirection;
-
-generate
-    for( genvar i=0; i<8; i = i+1 ) begin
-        assign pbOut[i] = peripheralBDirection[i] ? peripheralB[i] : 1'bZ;
-    end
-endgenerate
+    output reg nIrq);       // Interrupt request
 
 initial begin
     reset();
 end
 
-always@(posedge phi2)
+always@(posedge phi2, negedge nReset)
 begin
-    if( cs && nReset && rWb )
+    if( ~nReset )
     begin
-        case( rs )
-        4'd0: begin
-            readPb();
-        end
-        4'd1: begin
-            readPa();
-        end
-        4'd2: begin
-            readPbDir();
-        end
-        4'd3: begin
-            readPaDir();
-        end
-        default: begin
-            // All other registers are not yet implemented
-        end
-        endcase
+        reset();
     end else begin
-        dataReg = 7'bZ;
-    end
-end
-
-always@(negedge phi2)
-begin
-    if( cs && nReset )
-    begin
-        if( !rWb ) begin
-            // Write mode
-            case( rs )
-            4'd0: begin
-                writePb();
+        if( cs )
+        begin
+            // This is a clock edge and we're chip selected
+            if( ~rWb ) begin
+                // Rising edge of clock on write operation
+                case( rs )
+                4'd0: begin
+                    writePb();
+                end
+                4'd1: begin
+                    writePa();
+                end
+                4'd2: begin
+                    writePbDir();
+                end
+                4'd3: begin
+                    writePaDir();
+                end
+                default: begin
+                    // All other registers are not yet implemented
+                end
+                endcase
+            end else begin
+                // Falling edge of clock on read operation
+                // Well, fudge. It seems FPGAs can't trigger on both positive and negative edges of same signal. The 6522 datasheet requires that
+                // we make the results available on the falling edge of the clock. The reason it requires this, however, is to give the CPU time
+                // to put the data bus in high impedance mode. Since we're using separate in and out lines, we'll load the the data on the rising
+                // edge and no one should be the wiser of it. 
+                case( rs )
+                4'd0: begin
+                    readPb();
+                end
+                4'd1: begin
+                    readPa();
+                end
+                4'd2: begin
+                    readPbDir();
+                end
+                4'd3: begin
+                    readPaDir();
+                end
+                default: begin
+                    // All other registers are not yet implemented
+                end
+                endcase
             end
-            4'd1: begin
-                writePa();
-            end
-            4'd2: begin
-                writePbDir();
-            end
-            4'd3: begin
-                writePaDir();
-            end
-            default: begin
-                // All other registers are not yet implemented
-            end
-            endcase
         end
-    end else begin
-        dataReg = 7'bZ;
     end
-end
-
-always@(negedge nReset)
-begin
-    reset();
-end
-
-always@(negedge cs)
-begin
-    dataReg = 7'bZ;
 end
 
 task readPb();
 begin 
     // Read. Give true input where applicable, and *desired* output elsewhere. See section 2.1 of the datasheet
-    dataReg = (pbIn & ~peripheralBDirection) | (peripheralB & peripheralBDirection);
+    dataOut <= (pbIn & ~pbMask) | (pbOut & pbMask);
 end
 endtask
 
 task writePb();
-    peripheralB = dataIn;
+    pbOut <= dataIn;
 endtask
 
 task readPa();
-    dataReg = paIn;
+    dataOut <= paIn;
 endtask
 
 task writePa();
-    peripheralA = dataIn;
+    paOut <= dataIn;
 endtask
 
 task readPbDir();
-    dataReg = peripheralBDirection;
+    dataOut <= pbMask;
 endtask
 
 task writePbDir();
-    peripheralBDirection = dataIn;
+    pbMask <= dataIn;
 endtask
 
 task readPaDir();
-    dataReg = peripheralADirection;
+    dataOut <= paMask;
 endtask
 
 task writePaDir();
-    peripheralADirection = dataIn;
+    paMask <= dataIn;
 endtask
 
 task reset();
 begin
-    dataReg = 8'bZ; // High impedance on start
-    irqReg = 1;     // Don't request interrupt
-    
-    peripheralA = 0;
-    peripheralADirection = 0;
-    peripheralB = 0;
-    peripheralBDirection = 0;
+    dataOut <= 0;    // High impedance on start
+    nIrq <= 1;       // Don't request interrupt
+
+    paOut <= 0;
+    paMask <= 0;
+    pbOut <= 0;
+    pbMask <= 0;
 end
 endtask
 
