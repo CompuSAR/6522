@@ -49,6 +49,7 @@ begin
                 end
                 default: begin
                     // All other registers are not yet implemented
+                    dataOut <= 0;
                 end
                 endcase
             end else begin
